@@ -1,0 +1,68 @@
+---
+Parameters:
+  s3AccessForEC2:
+    Type: String
+    Description: 'ARN for the managed s3 read only access policy'
+    Default: arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+
+
+Resources:
+  MyInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-0341aeea105412b57
+      InstanceType: t2.micro
+      IamInstanceProfile: !Ref InstanceProfile
+      Tags:
+        - Key: "Environment"
+          Value: "Development"
+        - Key: "Name"
+          Value: "webserver"
+      UserData:
+        Fn::Base64: |
+            #!/bin/bash -xe
+            yum update -y
+            yum install -y ruby wget
+            wget https://aws-codedeploy-us-west-2.s3.us-west-2.amazonaws.com/latest/install
+            chmod +x ./install
+            ./install auto
+
+      SecurityGroups:
+        - !Ref SSHSecurityGroup
+  
+  InstanceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement: 
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+                - 'sts:AssumeRole'
+      Description: "Role for Code Deploy"
+      Path: /
+      ManagedPolicyArns:
+        - !Ref s3AccessForEC2
+  
+  InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Roles:
+        - !Ref InstanceRole
+
+  SSHSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: SSH and HTTP
+      SecurityGroupIngress:
+      - CidrIp: 0.0.0.0/0
+        FromPort: 22
+        IpProtocol: tcp
+        ToPort: 22
+      - CidrIp: 0.0.0.0/0
+        FromPort: 80
+        IpProtocol: tcp
+        ToPort: 80

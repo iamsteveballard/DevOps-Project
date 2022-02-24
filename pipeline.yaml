@@ -1,0 +1,270 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: CodePipline to build project with CodeBuild and deploy to ec2 with CodeDeploy
+
+Parameters:
+
+  PipelineName:
+    Description: A name for pipeline
+    Type: String
+    Default: Devops-project-pipeline
+
+  Email:
+    Description: The email address where CodePipeline sends pipeline notifications
+    Type: String
+    Default: ballard@mailinator.com
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: "CodePipeline Settings"
+        Parameters:
+          - PipelineName
+          # - S3Bucket
+          # - SourceS3Key
+          - Email
+
+Resources:
+
+  ArtifactStoreBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      VersioningConfiguration:
+        Status: Enabled
+
+  CodePipelineSNSTopic:
+    Type: AWS::SNS::Topic
+    Properties:
+      Subscription:
+        - Endpoint: !Ref Email
+          Protocol: email
+
+  CodeBuildProject:
+    Type: AWS::CodeBuild::Project
+    Properties:
+      Artifacts:
+        Type: CODEPIPELINE
+        OverrideArtifactName: true
+      Source:
+        Type: CODEPIPELINE
+        BuildSpec: buildspec.yml
+      Environment:
+        ComputeType: BUILD_GENERAL1_SMALL
+        Image: aws/codebuild/standard:5.0
+        Type: LINUX_CONTAINER
+        EnvironmentVariables:
+          - Name: COGNITO_ID
+            Value: !ImportValue CognitoID
+          - Name: COGNITO_CLIENT_ID
+            Value: !ImportValue CognitoClientID
+          - Name: API_URL
+            Value: !ImportValue APIurl
+      Name: Build-Project-Name
+      ServiceRole: !GetAtt CodeBuildRole.Arn
+
+  CodeDeployApplication:
+    Type: AWS::CodeDeploy::Application
+    Properties:
+      ApplicationName: CodeDeploy-ReactApp
+      ComputePlatform: Server
+
+  CodeDeployGroup:
+    Type: AWS::CodeDeploy::DeploymentGroup
+    Properties:
+      ApplicationName: !Ref CodeDeployApplication
+      Ec2TagFilters:
+        - Key: Environment
+          Value: Development
+          Type: KEY_AND_VALUE
+      ServiceRoleArn: !GetAtt CodeDeployRole.Arn
+
+  Pipeline:
+    Type: AWS::CodePipeline::Pipeline
+    Properties:
+      ArtifactStore:
+        Location: !Ref 'ArtifactStoreBucket'
+        Type: S3
+      DisableInboundStageTransitions: []
+      Name: !Ref 'PipelineName'
+      RoleArn: !GetAtt [PipelineRole, Arn]
+      Stages:
+        - Name: CCSource
+          Actions:
+            - Name: TemplateSource
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Provider: CodeCommit
+                Version: '1'
+              Configuration:
+                BranchName: master
+                RepositoryName: !ImportValue CCRepo
+                # PollForSourceChanges: true
+                # S3Bucket: !Ref 'S3Bucket'
+                # S3ObjectKey: !Ref 'SourceS3Key'
+              OutputArtifacts:
+                - Name: TemplateSource
+              RunOrder: 1
+        - Name: BuildStage
+          Actions:
+            - Name: BuildApp
+              ActionTypeId:
+                Category: Build
+                Owner: AWS
+                Provider: CodeBuild
+                Version: '1'
+              Configuration:
+                ProjectName: !Ref CodeBuildProject
+              InputArtifacts:
+                - Name: TemplateSource
+              OutputArtifacts:
+                - Name: BuildArtifact
+              RunOrder: 2
+        - Name: DeployStage
+          Actions:
+            - Name: DeployReactApp
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CodeDeploy
+                Version: '1'
+              Configuration:
+                ApplicationName: !Ref CodeDeployApplication
+                DeploymentGroupName: !Ref CodeDeployGroup
+              InputArtifacts:
+                - Name: BuildArtifact
+              RunOrder: 3
+
+  # CFNRole:
+  #   Type: AWS::IAM::Role
+  #   Properties:
+  #     AssumeRolePolicyDocument:
+  #       Statement:
+  #       - Action: ['sts:AssumeRole']
+  #         Effect: Allow
+  #         Principal:
+  #           Service: [cloudformation.amazonaws.com]
+  #       Version: '2012-10-17'
+  #     Path: /
+  #     Policies:
+  #       - PolicyName: CloudFormationRole
+  #         PolicyDocument:
+  #           Version: '2012-10-17'
+  #           Statement:
+  #             - Action:
+  #                 - 'ec2:*'
+  #               Effect: Allow
+  #               Resource: '*'
+
+  CodeDeployRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: '1'
+            Effect: Allow
+            Principal:
+              Service:
+                - codedeploy.us-east-1.amazonaws.com
+                - codedeploy.us-west-2.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: CodeDeployPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Resource:
+                  - '*'
+                Action:
+                  - ec2:Describe*
+              - Effect: Allow
+                Resource:
+                  - '*'
+                Action:
+                  - autoscaling:CompleteLifecycleAction
+                  - autoscaling:DeleteLifecycleHook
+                  - autoscaling:DescribeLifecycleHooks
+                  - autoscaling:DescribeAutoScalingGroups
+                  - autoscaling:PutLifecycleHook
+                  - autoscaling:RecordLifecycleActionHeartbeat
+
+  CodeBuildRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: codebuild.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: CodeBuildAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Action:
+                - 's3:*'
+                - 'codebuild:*'
+                Effect: Allow
+                Resource: '*'
+        - PolicyName: "logs"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+                -
+                  Effect: "Allow"
+                  Action:
+                      - logs:CreateLogGroup
+                      - logs:CreateLogStream
+                      - logs:PutLogEvents
+                      - ecr:GetAuthorizationToken
+                      - ssm:GetParameters
+                  Resource: "*"
+              
+  PipelineRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Action: ['sts:AssumeRole']
+          Effect: Allow
+          Principal:
+            Service: [codepipeline.amazonaws.com]
+        Version: '2012-10-17'
+      Path: /
+      Policies:
+        - PolicyName: CodePipelineAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Action:
+                - 's3:*'
+                - 'cloudformation:CreateStack'
+                - 'cloudformation:DescribeStacks'
+                - 'cloudformation:DeleteStack'
+                - 'cloudformation:UpdateStack'
+                - 'cloudformation:CreateChangeSet'
+                - 'cloudformation:ExecuteChangeSet'
+                - 'cloudformation:DeleteChangeSet'
+                - 'cloudformation:DescribeChangeSet'
+                - 'cloudformation:SetStackPolicy'
+                - 'iam:PassRole'
+                - 'sns:Publish'
+                - 'codebuild:*'
+                - 'codecommit:*'
+                - 'codedeploy:*'
+                Effect: Allow
+                Resource: '*'
+
+Outputs:
+  CodeBuildArtifact:
+    Description: Output artifact from CodeBuild
+    Value: BuildArtifact
+    Export:
+      Name: CodeBuildArtifact

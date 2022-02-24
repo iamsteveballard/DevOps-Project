@@ -1,0 +1,106 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: AWS SAM template with a simple API definition
+
+Globals:
+  Api:
+    OpenApiVersion: 3.0.1
+
+Parameters:
+  YourEmail:
+    Type: String
+    Default: ballard@mailinator.com
+  YourUsername:
+    Type: String
+    Default: steve
+
+Resources:
+
+  ApiGatewayApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: dev
+      Auth:
+        DefaultAuthorizer: MyCognitoAuthorizer
+        Authorizers:
+          MyCognitoAuthorizer:
+            UserPoolArn: 
+              - !GetAtt UserPool.Arn
+        AddDefaultAuthorizerToCorsPreflight: false
+      DefinitionBody:
+        'Fn::Transform':
+          Name: 'AWS::Include'
+          Parameters:
+            Location: swagger-apigateway.yaml
+
+  ApiFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Events:
+        ApiEvent:
+          Type: Api
+          Properties:
+            Path: /
+            Method: POST
+            RestApiId:
+              Ref: ApiGatewayApi
+      Runtime: python3.8
+      Handler: app.lambda_handler
+
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: false
+      UserPoolName: TestingUsers
+      AliasAttributes: 
+        - preferred_username
+        - email
+      AutoVerifiedAttributes:
+        - email
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 6
+          RequireLowercase: false
+          RequireNumbers: false
+          RequireSymbols: false
+          RequireUppercase: false
+
+  UserPoolTokenClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref UserPool
+      GenerateSecret: false
+      ExplicitAuthFlows:
+      - USER_PASSWORD_AUTH
+
+  UserPoolUser:
+    Type: AWS::Cognito::UserPoolUser
+    Properties:
+      DesiredDeliveryMediums:
+        - EMAIL
+      Username: !Ref YourUsername
+      UserPoolId: !Ref UserPool
+      UserAttributes:
+      - Name: email
+        Value: !Ref YourEmail
+      - Name: name
+        Value: !Ref YourUsername
+      
+Outputs:
+  CognitoID:
+    Description: The Cognito UserPool ID
+    Value: !Ref UserPool
+    Export:
+      Name: CognitoID
+  CognitoClientID:
+    Description: The Cognito UserPool Client ID
+    Value: !Ref UserPoolTokenClient
+    Export:
+      Name: CognitoClientID
+  APIurl:
+    Description: URL to point to api gateway
+    Value: 
+      Fn::Sub: https://${ApiGatewayApi}.execute-api.${AWS::Region}.amazonaws.com/dev/
+    Export:
+      Name: APIurl

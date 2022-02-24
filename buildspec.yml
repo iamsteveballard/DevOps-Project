@@ -5,15 +5,12 @@ phases:
         runtime-versions:
             nodejs: 14
         commands:
-            - echo "installing something"
+            - echo "installing"
             - cd devops-project
             - npm install amazon-cognito-identity-js
     pre_build:
         commands: 
-            - echo "we are in the pre build phase"         
-            - ls  
-            - echo $HOME
-            - env
+            - echo "we are in the pre build phase"
             - echo "UserID:"${COGNITO_ID}
             - echo "ClientID:"$COGNITO_CLIENT_ID
             - echo "API_URL:"$API_URL
@@ -22,22 +19,16 @@ phases:
             - echo REACT_APP_.AWS_API_URL=$API_URL >> .env
             - ls
             - cat .env
-            # - sed -i -e 's/process.env["REACT_APP_.AWS_COGNITO_ID"]/'$COGNITO_ID/'g' src/UserPool.js
-            # - sed -i -e 's/process.env["REACT_APP_.AWS_COGNITO_CLIENT_ID"]/'$COGNITO_CLIENT_ID'/g' src/UserPool.js
             - cat src/UserPool.js
-            # - sed -i -e 's%process.env["REACT_APP_.AWS_API_URL"]%'$API_URL'%g' src/components/Lambda.js
             - cat src/components/Lambda.js
             - npm install
     build:
         commands:
-            - echo "we are in the build block"
-            - echo "we will run some tests"
-            - ls
+            - echo "Build react app"
             - npm run build
     post_build:
         commands:
             - echo "we are in the post build phase"
-            - ls
             - cd build
             - ls
             - cat index.html
@@ -45,7 +36,6 @@ phases:
             - ls
 artifacts:
   files:
-    # - '**/*'
     - 'appspec.yml'
     - 'scripts/*'
     - 'devops-project/build/**/*'

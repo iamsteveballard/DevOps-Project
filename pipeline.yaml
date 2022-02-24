@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: "2010-09-09"
 
-Description: CodePipline to build project with CodeBuild and deploy to ec2 with CodeDeploy
+Description: CodePipline to build project with CodeBuild and deploy to ec2 instance with CodeDeploy
 
 Parameters:
 

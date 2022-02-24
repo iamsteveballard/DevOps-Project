@@ -56,7 +56,7 @@ const Signup = () => {
                                 onChange={(event) => setEmail(event.target.value)}
                             ></input>
                             <label htmlFor="password">Password</label>
-                            <input 
+                            <input type="password"
                                 value={password}
                                 onChange={(event) => setPassword(event.target.value)}
                             ></input>

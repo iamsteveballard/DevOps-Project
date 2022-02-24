@@ -43,7 +43,7 @@ Resources:
               Ref: ApiGatewayApi
       Runtime: python3.8
       Handler: app.lambda_handler
-      CodeUri: s3://devops-project-steve/59abd485fbee0a995a1c71a236ea81d1
+      CodeUri: s3://devops-project-steve/7318857929780e8e3bfc9771eda7993d
   UserPool:
     Type: AWS::Cognito::UserPool
     Properties:

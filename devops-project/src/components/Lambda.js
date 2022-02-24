@@ -23,13 +23,13 @@ const Lambda = () => {
         event.preventDefault()
         console.log("toHash:", toHash)
         console.log("jwtToken1:", jwtToken)
-        console.log("api url:", process.env['REACT_APP_.AWS_API_URL'])
+        console.log("api url:", process.env["REACT_APP_.AWS_API_URL"])
         const res = await axios({
             method: "POST",
             // url: "https://y9tchicdn1.execute-api.us-west-2.amazonaws.com/dev/",
             // url: "https://y9tchicdn1.execute-api.us-west-2.amazonaws.com/dev/sam-test-app-ApiFunction-yFsQ1FOA1tVy",
             // url: "https://ugcfp5wl15.execute-api.us-west-2.amazonaws.com/dev/",
-            url: process.env['REACT_APP_.AWS_API_URL'],
+            url: process.env["REACT_APP_.AWS_API_URL"],
 
             headers: {
                 // "Access-Control-Allow-Origin": "*",

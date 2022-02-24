@@ -3,40 +3,33 @@ import hashlib
 import base64
 
 def lambda_handler(event, context):
-    try:
-        print("header?:", json.loads(event['header']))
-    except:
-        print("header not found")
-    try:
-        print("event112:", event)
-        print("event body1:", type(event['body']))
-        print("event body2:", json.loads(event['body']))
-        print("event body3:", type(json.loads(event['body'])))
-    except:
-        print("except1")
-    try:
-        print("event4:", json.loads(event['body'])['hashtest'])
-    except:
-        print("except2")
-        
-    # print("eventhash:", event['hashtest'])
-    print("context", context)
-    str1 = json.loads(event['body'])['hashtest']
+
+    tohash = json.loads(event['body'])['tohash']
+    username = json.loads(event['body'])['username']
     try:
         jwt = json.loads(event['body'])['jwtToken']
-        print('jwt:',jwt)
         header, payload, signature = jwt.split(".")
-        print('payload:', payload)
-        decoded = json.loads(base64.b64decode(payload))
-        print('decoded:', decoded['cognito:username'])
-    except Exception:
+        encoded_payload = payload.encode()
+        padding = b'=' * (4 - (len(encoded_payload) % 4))
+        padded_payload = encoded_payload + padding
+
+        decoded_payload = base64.urlsafe_b64decode(padded_payload)
+        decoded_username = json.loads(decoded_payload)['cognito:username']
+
+        print('decoded:', decoded_username)
+
+        if decoded_username == username:
+            print('whew, no hacker')
+        else:
+            print("you've been spoofed!")
+
+    except:
         print('jwt failed')
-        print(Exception)
     
     statusCode = 200
     return {
         "statusCode": statusCode,
-        "body":"hash-result: " + str1 + ": " + hashlib.sha256(str1.encode()).hexdigest(),
+        "body": hashlib.sha256(tohash.encode()).hexdigest(),
         "headers": {
             'Access-Control-Allow-Headers': 'Content-Type,X-Amz-Date,X-Amz-Security-Token,Authorization,X-Api-Key,X-Requested-With,Accept,Access-Control-Allow-Methods,Access-Control-Allow-Origin,Access-Control-Allow-Headers',
             'Access-Control-Allow-Origin': '*',

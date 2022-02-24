@@ -12,14 +12,16 @@
 # read varname
 # echo It\'s nice to meet you $varname
 
-echo 'creating CodeCommit Repository'
+# echo 'creating CodeCommit Repository'
 
-aws cloudformation deploy --template-file create-repo.yml --stack-name create-repo
+# aws cloudformation deploy --template-file create-repo.yml --stack-name create-repo
 
-echo 'open cloudformation console, select the create-repo stack'
-echo 'navigate to outputs and copy the CloneRepoUrl'
-echo 'git remote add cc <CloneRepoUrl>'
-echo 'git push cc master'
+# echo 'open cloudformation console, select the create-repo stack'
+# echo 'navigate to outputs and copy the CloneRepoUrl'
+# echo 'git remote add cc <CloneRepoUrl>'
+# git add .
+# git commit -m "first upload to CodeCommit repo"
+# echo 'git push cc master'
 
 
 echo 'Please enter name for new s3 bucket (must be unique)'
@@ -45,6 +47,7 @@ aws s3api put-bucket-versioning --bucket $s3bucketname --versioning-configuratio
 
 
 # aws cloudformation package --s3-bucket devops-project-steve --template-file sam/api-template.yaml --output-template-file sam/gen/template-generated.yaml
+
 
 
 

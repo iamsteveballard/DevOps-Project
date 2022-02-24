@@ -18,10 +18,10 @@ phases:
             - echo "ClientID:"$COGNITO_CLIENT_ID
             - echo "API_URL:"$API_URL
             - ls
-            - sed -i -e 's/process.env['REACT_APP_.AWS_COGNITO_ID']/'$COGNITO_ID/'g' src/UserPool.js
-            - sed -i -e 's/process.env['REACT_APP_.AWS_COGNITO_CLIENT_ID']/'$COGNITO_CLIENT_ID'/g' src/UserPool.js
+            - sed -i -e "s/process.env['REACT_APP_.AWS_COGNITO_ID']/"$COGNITO_ID/"g" src/UserPool.js
+            - sed -i -e "s/process.env['REACT_APP_.AWS_COGNITO_CLIENT_ID']/"$COGNITO_CLIENT_ID"/g" src/UserPool.js
             - cat src/UserPool.js
-            - sed -i -e 's%process.env['REACT_APP_.AWS_API_URL']%'$API_URL'%g' src/components/Lambda.js
+            - sed -i -e "s%process.env['REACT_APP_.AWS_API_URL']%"$API_URL"%g" src/components/Lambda.js
             - cat src/components/Lambda.js
             - npm install
     build:

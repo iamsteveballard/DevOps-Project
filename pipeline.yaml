@@ -21,8 +21,6 @@ Metadata:
           default: "CodePipeline Settings"
         Parameters:
           - PipelineName
-          # - S3Bucket
-          # - SourceS3Key
           - Email
 
 Resources:
@@ -100,9 +98,6 @@ Resources:
               Configuration:
                 BranchName: master
                 RepositoryName: !ImportValue CCRepo
-                # PollForSourceChanges: true
-                # S3Bucket: !Ref 'S3Bucket'
-                # S3ObjectKey: !Ref 'SourceS3Key'
               OutputArtifacts:
                 - Name: TemplateSource
               RunOrder: 1
@@ -135,27 +130,6 @@ Resources:
               InputArtifacts:
                 - Name: BuildArtifact
               RunOrder: 3
-
-  # CFNRole:
-  #   Type: AWS::IAM::Role
-  #   Properties:
-  #     AssumeRolePolicyDocument:
-  #       Statement:
-  #       - Action: ['sts:AssumeRole']
-  #         Effect: Allow
-  #         Principal:
-  #           Service: [cloudformation.amazonaws.com]
-  #       Version: '2012-10-17'
-  #     Path: /
-  #     Policies:
-  #       - PolicyName: CloudFormationRole
-  #         PolicyDocument:
-  #           Version: '2012-10-17'
-  #           Statement:
-  #             - Action:
-  #                 - 'ec2:*'
-  #               Effect: Allow
-  #               Resource: '*'
 
   CodeDeployRole:
     Type: AWS::IAM::Role

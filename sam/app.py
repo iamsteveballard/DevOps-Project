@@ -16,7 +16,8 @@ def lambda_handler(event, context):
         decoded_payload = base64.urlsafe_b64decode(padded_payload)
         decoded_username = json.loads(decoded_payload)['cognito:username']
 
-        print('decoded:', decoded_username)
+        print('decoded_username:', decoded_username)
+        print('sent_username:', username)
 
         if decoded_username == username:
             print('whew, no hacker')

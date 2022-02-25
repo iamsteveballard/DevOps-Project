@@ -49,6 +49,7 @@ const Lambda = () => {
                         <button type="submit">Get Hash</button>
                     </form>
                     <div>{hashResult}</div>
+                    <div>---------------------</div> 
                 </div>
             }
             

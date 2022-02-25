@@ -26,7 +26,8 @@ Run command:
 ```
 
 ## Step 3: Add new CodeCommit Repo as a remote branch
-Navigate to AWS CloudFormation console under Stacks https://us-west-2.console.aws.amazon.com/cloudformation/home
+Navigate to AWS CloudFormation console under Stacks https://us-west-2.console.aws.amazon.com/cloudformation/home 
+
 Navigate to the Outputs section in the create-repo stack
 Copy the CloneRepoUrl
 

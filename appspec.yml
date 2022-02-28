@@ -1,7 +1,7 @@
 version: 0.0
 os: linux
 files:
-  - source: devops-project/build/
+  - source: devops-project-react-app/build/
     destination: /var/www/html/
 hooks:
   ApplicationStop:

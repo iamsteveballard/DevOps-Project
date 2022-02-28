@@ -6,7 +6,7 @@ phases:
             nodejs: 14
         commands:
             - echo "installing"
-            - cd devops-project
+            - cd devops-project-react-app
             - npm install amazon-cognito-identity-js
     pre_build:
         commands: 
@@ -38,6 +38,6 @@ artifacts:
   files:
     - 'appspec.yml'
     - 'scripts/*'
-    - 'devops-project/build/**/*'
+    - 'devops-project-react-app/build/**/*'
 
             

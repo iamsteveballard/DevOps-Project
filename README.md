@@ -8,8 +8,13 @@ Uses AWS Cloudformation to build and deploy a React App to a single EC2 Instance
 
 AWS CLI installed
 AWS profile configured
-
 Note: Everything is run from AWS::Region us-west-2
+Click here for instructions on how to set up your AWS profile
+https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html
+
+```
+aws configure
+```
 
 ## Step 1: Clone Repository
 
@@ -22,7 +27,7 @@ git clone https://github.com/iamsteveballard/DevOps-Project.git
 
 Run commands:
 ``` 
-cd devops-project
+cd DevOps-Project
 aws cloudformation deploy --template-file create-repo.yml --stack-name create-repo
 ```
 
@@ -30,12 +35,13 @@ aws cloudformation deploy --template-file create-repo.yml --stack-name create-re
 Navigate to AWS CloudFormation console under Stacks https://us-west-2.console.aws.amazon.com/cloudformation/home 
 
 Navigate to the Outputs section in the create-repo stack
-Copy the CloneRepoUrl
-
-
-## Step4: Run commands:
+Copy the CloneRepoUrl and add it as a remote repository
 ```
 git remote add cc <CloneRepoUrl>
+```
+
+## Step 4: Push changes to new CodeCommit repository
+```
 git add .
 git commit -m "first upload to CodeCommit repo"
 git push cc main

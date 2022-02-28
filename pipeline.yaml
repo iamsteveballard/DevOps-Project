@@ -96,7 +96,7 @@ Resources:
                 Provider: CodeCommit
                 Version: '1'
               Configuration:
-                BranchName: master
+                BranchName: main
                 RepositoryName: !ImportValue CCRepo
               OutputArtifacts:
                 - Name: TemplateSource

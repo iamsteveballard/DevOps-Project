@@ -11,9 +11,12 @@ https://www.youtube.com/watch?v=RAxxRytInzo
 ## Prerequisites: 
 
 AWS CLI installed
+
 AWS profile configured
+
 Note: Everything is run from AWS::Region us-west-2
-Click here for instructions on how to set up your AWS profile
+
+Click here for instructions on how to set up your AWS profile:
 
 https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html
 
@@ -53,6 +56,8 @@ git add .
 git commit -m "first upload to CodeCommit repo"
 git push cc main
 ```
+
+## Step 5: Run CloudFormation commands
 
 Then run launch.sh bash script. Will take a while, head to the AWS CloudFormation console to follow along with the progress.
 ```

@@ -5,6 +5,7 @@
 Uses AWS Cloudformation to build and deploy a React App to a single EC2 Instance and connects it to API Gateway, Cognito, and a Lambda function. 
 
 Video walkthrough:
+
 https://www.youtube.com/watch?v=RAxxRytInzo
 
 ## Prerequisites: 
@@ -13,6 +14,7 @@ AWS CLI installed
 AWS profile configured
 Note: Everything is run from AWS::Region us-west-2
 Click here for instructions on how to set up your AWS profile
+
 https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-quickstart.html
 
 ```

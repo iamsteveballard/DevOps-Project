@@ -10,9 +10,9 @@ https://www.youtube.com/watch?v=RAxxRytInzo
 
 ## Prerequisites: 
 
-AWS CLI installed
+- AWS CLI installed
 
-AWS profile configured
+- AWS profile with IAM role configured
 
 Note: Everything is run from AWS::Region us-west-2
 
@@ -45,6 +45,7 @@ Navigate to AWS CloudFormation console under Stacks
 https://us-west-2.console.aws.amazon.com/cloudformation/home 
 
 Navigate to the Outputs section in the create-repo stack
+
 Copy the CloneRepoUrl and add it as a remote repository
 ```
 git remote add cc <CloneRepoUrl>

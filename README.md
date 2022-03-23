@@ -1,5 +1,8 @@
 # DevOps-Project
 
+See Version 2 here:
+https://github.com/iamsteveballard/DevOps-Project-V2
+
 ## What does it do?
 
 Uses AWS Cloudformation to build and deploy a React App to a single EC2 Instance and connects it to API Gateway, Cognito, and a Lambda function. 
